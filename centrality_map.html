@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8' />
+    <title>Sidewalk Observations Heatmap Test</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.41.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+	<div id='map'></div>
+
+    <div class='map-overlay top'>
+        <div class='map-overlay-inner'>
+            <fieldset>
+                <label>Select Measure</label>
+                <select id='layer' name='layer'>
+                    <option value='Edge Betweenness Centrality'>
+                </select>
+            </fieldset>
+        </div>
+    </div>
+
+	<script>
+		mapboxgl.accessToken = 'pk.eyJ1IjoibG9nYW55ZyIsImEiOiJjajlnMG82OHUyc2s0MzJtcWQxM2s5a3puIn0.u0B6MIr8Hwl3ICfqHGYxwA';
+		var map = new mapboxgl.Map({
+		    container: 'map',
+		    style: 'mapbox://styles/mapbox/light-v9',
+		    center: [-122.3321, 47.6062],
+		    zoom: 10
+		});
+	</script>
+
+</body>

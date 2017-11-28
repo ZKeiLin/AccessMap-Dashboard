@@ -53,7 +53,6 @@ def build_graph(gdf, precision=1, simplify=.05, graph=None, id_col="id"):
         end = tuple(np.round(coords[-1], precision))
         # Add edge
         edge_attr = {
-            'forward': 1,
             'geometry': geom,
             'distance': haversine_distance(coords[0], coords[-1])
             #'id': row.loc[id_col]
