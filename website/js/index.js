@@ -1,6 +1,6 @@
 'use strict'
 // import mapboxgl from 'mapbox-gl';
-
+// import DATA from './dataModel';
 
 // Set up the map
 mapboxgl.accessToken = 'pk.eyJ1IjoiemtlaSIsImEiOiJjajlic3hpeGYxajlzMnFsc3lpcmM3ZnVyIn0.stjuXAylUunlikhHKQZM-Q';
@@ -22,7 +22,6 @@ $.getJSON("crossings.geojson", function (data) {
     crossingsWith = data;
     crossingsWithout = data;
     let features = data.features;
-    console.log(data);
     features.forEach(function (feature) {
         // console.log(feature);
         if(feature.properties.curbramps > 0){
@@ -43,20 +42,13 @@ $.getJSON("crossings.geojson", function (data) {
         "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
         "features": withoutCurbBramp
     }
-    
-    console.log(crossingsWith);
-    console.log(crossingsWithout);
-    label(crossingsWith, crossingsWithout);
-    county();
+    getCounty(crossingsWithout); 
+    // label(crossingsWith, crossingsWithout);
 });
-console.log(crossingsWith);
-console.log(crossingsWithout);
 
 
 function label(crossingsWith, crossingsWithout){
-    map.on('load', function() {
-        console.log("mapmap");
-        
+    map.on('load', function() {        
         map.addLayer({
           id: 'crossingWith',
           type: "circle",
@@ -92,37 +84,66 @@ function label(crossingsWith, crossingsWithout){
     });
 }
 
+function getCounty(pointsData){
+$.getJSON("counties.geojson", function (data) {
+    county(data);
+    count(pointsData, data);
+})
+}
 
-function county(){
-    map.addSource('counties', {
-        "type": "vector",
-        "url": "mapbox://mapbox.82pkq93d"
+function county(counties){
+    map.addLayer({
+        'id': 'nhood-layer',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': counties
+        },
+        'paint': {
+            'fill-color': 'rgba(200, 100, 240, 0.4)',
+            'fill-outline-color': 'rgba(200, 100, 240, 1)'
+        }
     });
 
-    map.addLayer({
-        "id": "counties",
-        "type": "fill",
-        "source": "counties",
-        "source-layer": "original",
-        "paint": {
-            "fill-outline-color": "rgba(0,0,0,0.1)",
-            "fill-color": "rgba(0,0,0,0.1)"
-        }
-    }, 'place-city-sm'); // Place polygon under these labels.
+    var popup = new mapboxgl.Popup({closeButton: false,
+        closeOnClick: false});
+    map.on('mouseenter', 'nhood-layer', function (e) {
+        map.getCanvas().style.cursor = 'pointer';
+        popup.setLngLat(e.lngLat)
+            .setHTML(e.features[0].properties.name)
+            .addTo(map);
+    });
 
-    map.addLayer({
-        "id": "counties-highlighted",
-        "type": "fill",
-        "source": "counties",
-        "source-layer": "original",
-        "paint": {
-            "fill-outline-color": "#484896",
-            "fill-color": "#6e599f",
-            "fill-opacity": 0.75
-        },
-        "filter": ["in", "COUNTY", ""]
-    }, 'place-city-sm');
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'nhood-layer', function () {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+}
 
+
+
+// var ptsWithin = turf.within(points, searchWithin);
+function count(points, polygons){
+    var count = {};
+    var allPoints = points;
+    allPoints.features.map(function(point){
+        point.geometry.coordinates = point.geometry.coordinates[0]
+
+    })
+    console.log(allPoints);
+    var ptsWithin = turf.within(allPoints, polygons);
+    // districs.forEach(function(district){
+    //     console.log(points.features);
+    //     console.log(district);
+    //     var ptsWithin = turf.within(points.features, district);
+    //     // one.push(ptsWithin);
+    //     count[district] = ptsWithin;        
+    //     console.log(ptsWithin);
+    // });
+    console.log(count);
+    
+    
 }
 
 

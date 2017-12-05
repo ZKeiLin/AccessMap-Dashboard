@@ -19,7 +19,9 @@
   "dependencies": {
     "@mapbox/geojson-area": "^0.2.2",
     "install": "^0.10.2",
-    "mapbox-gl": "^0.42.2"
+    "mapbox-gl": "^0.42.2",
+    "turf": "^3.0.14",
+    "turf-within": "^3.0.12"
   },
   "devDependencies": {}
 }
