@@ -58,8 +58,10 @@
 		});
 
 		map.boxZoom.disable();
-
+		var startLngLat;
+		var selectFinished;
 		map.on('load', function() {
+			selectFinished = true;
 			var canvas = map.getCanvasContainer();
 			var start;
 			var current;
@@ -75,6 +77,7 @@
 			function mouseDown(e){
 				if(!(e.shiftKey && e.button === 0)) return;
 				map.dragPan.disable();
+				// Add listeners to check for changes to the selected box
 				document.addEventListener('mousemove', onMouseMove);
 		        document.addEventListener('mouseup', onMouseUp);
 		        document.addEventListener('keydown', onKeyDown);
@@ -82,44 +85,77 @@
 			}
 			function onMouseMove(e){
 				current = mousePos(e);
+				// If the box doesn't exist, create it
 				if (!box) {
 					box = document.createElement('div');
 					box.classList.add('boxdraw');
 					canvas.appendChild(box);
 				}
+				// Determine where the top left and bottom right corners of the box are on the screen
 				var minX = Math.min(start.x, current.x),
 		            maxX = Math.max(start.x, current.x),
 		            minY = Math.min(start.y, current.y),
 		            maxY = Math.max(start.y, current.y);
 		        var pos = 'translate(' + minX + 'px,' + minY + 'px)';
+		        // Assign attributes to the box based on the bottom right and top left corners
 		        box.style.transform = pos;
 		        box.style.WebkitTransform = pos;
 		        box.style.width = maxX - minX + 'px';
 		        box.style.height = maxY - minY + 'px';
 			}
 			function onMouseUp(e){
-				finish([start, mousePos(e)])
+				// Run the finisher function on the coordinates of the
+				// selected box when mouse is released.
+				finish();
 			}
 			function onKeyDown(e){
 				// If escape is pressed, cancel the selection.
 				if (e.keyCode === 27) finish();
 			}
-			function finish(bbox){
+			function finish(){
 				// Remove these events now that finish has been called.
 		        document.removeEventListener('mousemove', onMouseMove);
 		        document.removeEventListener('keydown', onKeyDown);
 		        document.removeEventListener('mouseup', onMouseUp);
 		        if (box) {
+		        	// Clear saved box, return to pre-click state
 		            box.parentNode.removeChild(box);
 		            box = null;
 		        }
-		        // If bbox exists (the selection was not cancelled), calculate edge betweenness for the selection.
-		        if (bbox) {
-		            // TODO
-		            window.alert("Wow");
-		        }
 
 		        map.dragPan.enable();
+			}
+		});
+		map.on("mousedown", function(e) {
+			if(e.originalEvent.shiftKey){
+				startLngLat = e.lngLat;
+				selectFinished = false;
+			}
+		});
+		map.on("mouseup", function(e) {
+			if(!selectFinished){
+				selectFinished = true;
+				var startLat = Math.min(startLngLat.lat, e.lngLat.lat);
+				var startLng = Math.min(startLngLat.lng, e.lngLat.lng);
+				var endLat = Math.max(startLngLat.lat, e.lngLat.lat);
+				var endLng = Math.max(startLngLat.lng, e.lngLat.lng);
+				map.addSource('Pedways', {
+					type: 'geojson',
+					data: 'http://127.0.0.1:5000/centrality/' + startLat + '/' + startLng + '/' + endLat + '/' + endLng
+				});
+				map.addLayer({
+			        "id": "Pedways-lines",
+			        "type": "line",
+			        "source": "Pedways",
+			        "layout": {
+			            "line-join": "round",
+			            "line-cap": "round"
+			        },
+			        "paint": {
+			            "line-color": "#888",
+			            "line-width": 8
+			        }
+			    });
 			}
 		});
 	</script>
