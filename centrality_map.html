@@ -131,18 +131,7 @@
 				startLngLat = e.lngLat;
 				selectFinished = false;
 			}
-		});
-		map.on("mouseup", function(e) {
-			if(!selectFinished){
-				selectFinished = true;
-				var startLat = Math.min(startLngLat.lat, e.lngLat.lat);
-				var startLng = Math.min(startLngLat.lng, e.lngLat.lng);
-				var endLat = Math.max(startLngLat.lat, e.lngLat.lat);
-				var endLng = Math.max(startLngLat.lng, e.lngLat.lng);
-				map.addSource('Pedways', {
-					type: 'geojson',
-					data: 'http://127.0.0.1:5000/centrality/' + startLat + '/' + startLng + '/' + endLat + '/' + endLng
-				});
+			if(e.originalEvent.altKey){
 				map.addLayer({
 			        "id": "Pedways-lines",
 			        "type": "line",
@@ -156,6 +145,19 @@
 			            "line-width": 8
 			        }
 			    });
+			}
+		});
+		map.on("mouseup", function(e) {
+			if(!selectFinished){
+				selectFinished = true;
+				var startLat = Math.min(startLngLat.lat, e.lngLat.lat);
+				var startLng = Math.min(startLngLat.lng, e.lngLat.lng);
+				var endLat = Math.max(startLngLat.lat, e.lngLat.lat);
+				var endLng = Math.max(startLngLat.lng, e.lngLat.lng);
+				map.addSource('Pedways', {
+					'type': 'geojson',
+					'data': 'http://127.0.0.1:5000/centrality.geojson?lat_1=' + startLat + '&lon_1=' + startLng + '&lat_2=' + endLat + '&lon_2=' + endLng
+				});
 			}
 		});
 	</script>

@@ -1,9 +1,10 @@
 # December 4, 2017
 # Logan Young
 
-from flask import Flask, jsonify, make_response, abort
+from flask import Flask, jsonify, make_response, abort, request
 import geopandas as gpd
 import pandas as pd
+import geojson
 
 app = Flask(__name__)
 
@@ -14,20 +15,26 @@ sidewalks = gpd.read_file(SIDEWALK_FILE)
 crossings = gpd.read_file(CROSSINGS_FILE)
 pedways = pd.concat([sidewalks, crossings])
 
-@app.route('/sidewalks/')
-def users():
-    ''' Retrieve the list of every sidewalk in the dataset.'''
+@app.route('/sidewalks.geojson', methods=['GET'])
+def sidewalks():
+    ''' 
+    Retrieve the list of every sidewalk in the dataset.
+    Mainly for testing purposes.
+    '''
     return sidewalks.to_json()
 
 
-@app.route('/crossings/')
-def items():
-    ''' Retrieve the list of every crossing in the dataset'''
+@app.route('/crossings.geojson', methods=['GET'])
+def crossings():
+    '''
+    Retrieve the list of every crossing in the dataset
+    Mainly for testing purposes.
+    '''
     return crossings.to_json()
 
 
-@app.route('/centrality/<lat_1>/<lon_1>/<lat_2>/<lon_2>')
-def user_recs(lat_1, lon_1, lat_2, lon_2):
+@app.route('/centrality.geojson', methods=['GET'])
+def centrality():
     '''
     Retrieve all of the sidewalks and crossings within the bounding box defined by (lat_1, lon_1)
     and (lat_2, lon_2). 
@@ -39,10 +46,10 @@ def user_recs(lat_1, lon_1, lat_2, lon_2):
     :return: A geopandas dataframe of lines that are the sidewalks and crossings within the bounding
     box.
     '''
-    lat_1 = float(lat_1)
-    lon_1 = float(lon_1)
-    lat_2 = float(lat_2)
-    lon_2 = float(lon_2)
+    lat_1 = float(request.args['lat_1'])
+    lon_1 = float(request.args['lon_1'])
+    lat_2 = float(request.args['lat_2'])
+    lon_2 = float(request.args['lon_2'])
     if lat_2 < lat_1 or lon_2 < lon_1:
         abort(400)
     selected_pedways = pedways.cx[lon_1:lon_2, lat_1:lat_2]
