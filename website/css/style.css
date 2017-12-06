@@ -10,10 +10,10 @@ html, body{
 
 #map { 
     position:absolute; 
-    top: 130;
+    top: 400;
     bottom:0; 
     width:100%; 
-    height: 90%;
+    height: 85%;
 }
 
 

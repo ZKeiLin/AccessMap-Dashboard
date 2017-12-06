@@ -8,7 +8,7 @@ const map = new mapboxgl.Map({
 container: 'map',
 style: 'mapbox://styles/mapbox/light-v9',
 center: [-122.335167, 47.608013], // starting position [lng, lat]
-zoom: 14
+zoom: 12
 });
 
 // var bbox = turf.bbox(features);
@@ -43,7 +43,7 @@ $.getJSON("crossings.geojson", function (data) {
         "features": withoutCurbBramp
     }
     getCounty(crossingsWithout); 
-    // label(crossingsWith, crossingsWithout);
+    label(crossingsWith, crossingsWithout);
 });
 
 
@@ -58,10 +58,10 @@ function label(crossingsWith, crossingsWithout){
           },
 
           paint: { 'circle-radius': {
-            'base': 1.75,
-            'stops': [[12, 2], [22, 180]]
+            'base': 3,
+            'stops': [[12, 3], [22, 180]]
             },
-            'circle-color': "#3CB371"
+            'circle-color': "#91C79D"
         }
         });
 
@@ -74,10 +74,10 @@ function label(crossingsWith, crossingsWithout){
             },
 
             paint: { 'circle-radius': {
-              'base': 1.75,
-              'stops': [[12, 2], [22, 180]]
+              'base': 3,
+              'stops': [[12, 3], [22, 130]]
               },
-              'circle-color': "#B22222"
+              'circle-color': "#9F1328"
           }
           });
   
@@ -86,8 +86,12 @@ function label(crossingsWith, crossingsWithout){
 
 function getCounty(pointsData){
 $.getJSON("counties.geojson", function (data) {
-    county(data);
-    count(pointsData, data);
+    let DATA = data;
+    DATA.features = data.features.filter(function (a) {
+        return a.properties.city === "Seattle";
+    });
+    county(DATA);
+    // count(pointsData, DATA);
 })
 }
 
@@ -100,8 +104,8 @@ function county(counties){
             'data': counties
         },
         'paint': {
-            'fill-color': 'rgba(200, 100, 240, 0.4)',
-            'fill-outline-color': 'rgba(200, 100, 240, 1)'
+            'fill-color': 'rgba(100, 149, 237, 0.2)',
+            'fill-outline-color': 'rgba(0, 0, 128, 1)'
         }
     });
 
@@ -125,25 +129,20 @@ function county(counties){
 
 // var ptsWithin = turf.within(points, searchWithin);
 function count(points, polygons){
-    var count = {};
     var allPoints = points;
     allPoints.features.map(function(point){
         point.geometry.coordinates = point.geometry.coordinates[0]
-
     })
-    console.log(allPoints);
-    var ptsWithin = turf.within(allPoints, polygons);
-    // districs.forEach(function(district){
-    //     console.log(points.features);
-    //     console.log(district);
-    //     var ptsWithin = turf.within(points.features, district);
-    //     // one.push(ptsWithin);
-    //     count[district] = ptsWithin;        
-    //     console.log(ptsWithin);
-    // });
-    console.log(count);
+    var allDis = polygons;
+    allDis.features = allDis.features.slice(0);
+    console.log(allDis);
+   
     
+    // console.log(allPoints);
+    var ptsWithin = turf.within(allPoints, allDis);
+    console.log("hleloo2");
     
+    console.log(ptsWithin);
 }
 
 
