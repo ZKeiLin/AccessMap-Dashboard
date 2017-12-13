@@ -60,6 +60,7 @@
 		map.boxZoom.disable();
 		var startLngLat;
 		var selectFinished;
+		var firstSource = true;
 		map.on('load', function() {
 			selectFinished = true;
 			var canvas = map.getCanvasContainer();
@@ -131,7 +132,24 @@
 				startLngLat = e.lngLat;
 				selectFinished = false;
 			}
-			if(e.originalEvent.altKey){
+		});
+		map.on("mouseup", function(e) {
+			if(!selectFinished){
+				selectFinished = true;
+				var startLat = Math.min(startLngLat.lat, e.lngLat.lat);
+				var startLng = Math.min(startLngLat.lng, e.lngLat.lng);
+				var endLat = Math.max(startLngLat.lat, e.lngLat.lat);
+				var endLng = Math.max(startLngLat.lng, e.lngLat.lng);
+				if(!firstSource){
+					map.removeSource('Pedways');
+					map.removeLayer('Pedways-lines');
+				}else{
+					firstSource = false;
+				}
+				map.addSource('Pedways', {
+					'type': 'geojson',
+					'data': 'http://127.0.0.1:5000/centrality.geojson?lat_1=' + startLat + '&lon_1=' + startLng + '&lat_2=' + endLat + '&lon_2=' + endLng
+				});
 				map.addLayer({
 			        "id": "Pedways-lines",
 			        "type": "line",
@@ -142,22 +160,9 @@
 			        },
 			        "paint": {
 			            "line-color": "#888",
-			            "line-width": 8
+			            "line-width": 4
 			        }
 			    });
-			}
-		});
-		map.on("mouseup", function(e) {
-			if(!selectFinished){
-				selectFinished = true;
-				var startLat = Math.min(startLngLat.lat, e.lngLat.lat);
-				var startLng = Math.min(startLngLat.lng, e.lngLat.lng);
-				var endLat = Math.max(startLngLat.lat, e.lngLat.lat);
-				var endLng = Math.max(startLngLat.lng, e.lngLat.lng);
-				map.addSource('Pedways', {
-					'type': 'geojson',
-					'data': 'http://127.0.0.1:5000/centrality.geojson?lat_1=' + startLat + '&lon_1=' + startLng + '&lat_2=' + endLat + '&lon_2=' + endLng
-				});
 			}
 		});
 	</script>

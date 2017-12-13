@@ -5,33 +5,17 @@ from flask import Flask, jsonify, make_response, abort, request
 import geopandas as gpd
 import pandas as pd
 import geojson
+import json
+from measure_graph import build_graph
 
 app = Flask(__name__)
 
 SIDEWALK_FILE = "/Users/loganyg/git/accessmap-data/cities/seattle/data/sidewalk_network.geojson"
 CROSSINGS_FILE = "/Users/loganyg/git/accessmap-data/cities/seattle/data/crossing_network.geojson"
 
-sidewalks = gpd.read_file(SIDEWALK_FILE)
-crossings = gpd.read_file(CROSSINGS_FILE)
-pedways = pd.concat([sidewalks, crossings])
-
-@app.route('/sidewalks.geojson', methods=['GET'])
-def sidewalks():
-    ''' 
-    Retrieve the list of every sidewalk in the dataset.
-    Mainly for testing purposes.
-    '''
-    return sidewalks.to_json()
-
-
-@app.route('/crossings.geojson', methods=['GET'])
-def crossings():
-    '''
-    Retrieve the list of every crossing in the dataset
-    Mainly for testing purposes.
-    '''
-    return crossings.to_json()
-
+sidewalks_df = gpd.read_file(SIDEWALK_FILE)
+crossings_df = gpd.read_file(CROSSINGS_FILE)
+pedways_df = pd.concat([sidewalks_df, crossings_df])
 
 @app.route('/centrality.geojson', methods=['GET'])
 def centrality():
@@ -52,8 +36,10 @@ def centrality():
     lon_2 = float(request.args['lon_2'])
     if lat_2 < lat_1 or lon_2 < lon_1:
         abort(400)
-    selected_pedways = pedways.cx[lon_1:lon_2, lat_1:lat_2]
-    return selected_pedways.to_json()
+    selected_pedways = pedways_df.cx[lon_1:lon_2, lat_1:lat_2]
+    return_response = jsonify(geojson.loads(selected_pedways.to_json()))
+    return_response.headers['Access-Control-Allow-Origin'] = '*'
+    return return_response
 
 
 @app.errorhandler(404)
