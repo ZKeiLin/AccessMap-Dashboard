@@ -7,6 +7,7 @@ import pandas as pd
 import geojson
 import json
 from measure_graph import build_graph
+import networkx as nx
 
 app = Flask(__name__)
 
@@ -37,7 +38,18 @@ def centrality():
     if lat_2 < lat_1 or lon_2 < lon_1:
         abort(400)
     selected_pedways = pedways_df.cx[lon_1:lon_2, lat_1:lat_2]
-    return_response = jsonify(geojson.loads(selected_pedways.to_json()))
+    graph = build_graph(selected_pedways, precision=100)
+    ebc = nx.edge_betweenness_centrality(graph, weight='distance', normalized=True)
+    features = geojson.FeatureCollection([])
+    for edge in ebc:
+        centr = ebc[edge]
+        geometry = {'type': 'LineString'}
+        geometry['coordinates'] = [[edge[0][0], edge[0][1]], [edge[1][0], edge[1][1]]]
+        feature = geojson.Feature()
+        feature['geometry'] = geometry
+        feature['properties'] = {'centrality': centr}
+        features['features'].append(feature)
+    return_response = jsonify(features)
     return_response.headers['Access-Control-Allow-Origin'] = '*'
     return return_response
 
