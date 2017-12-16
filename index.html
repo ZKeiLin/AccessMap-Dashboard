@@ -6,16 +6,46 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- For Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+        crossorigin="anonymous"></script>
+    <!-- For Charts.js -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js'></script>
     <!-- For JQUERY -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="css/index.css">
-    <title>Travel Safety Score</title>
+    <title>Accessibility Scorer</title>
 </head>
 
 <body>
-    <p>Additional features here</p>
-    <div id='map' style='width: 100%; height: 100%;'></div>
-    <pre id='coordinates' class='coordinates'></pre>
+    <div id='map' style='width: 100%; height: 100%;'>
+        <p id="instruction" class="text-info lead">Select a time of the day</p>
+        <div id="slidecontainer">
+            <input type="range" min="0" max="23" value="0" class="slider" id="slider">
+            <p id="time" class="font text-info">Selected Time: </p>
+        </div>
+    </div>
+    <div>
+        <pre id='coordinates' class='coordinates'></pre>
+        <div id="chart" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="modalTitle" class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    </div>
+                    <canvas id="breakdown" width="100%" height="100%"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="js/index.js"></script>
 </body>
 
